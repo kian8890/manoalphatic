@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Monoalphabetic Cipher</title>
+    <style>
+        body { font-family: Arial; margin: 40px; }
+        textarea, input[type="text"] { width: 100%; margin: 10px 0; }
+        button { margin: 5px 5px 5px 0; }
+    </style>
+</head>
+<body>
+    <h2>Monoalphabetic Cipher Tool</h2>
+    <form method="POST">
+        <label>Text:</label>
+        <textarea name="text" rows="4">{{ text }}</textarea><br>
+        
+        <label>Key (26 letters):</label>
+        <input type="text" name="key" value="{{ key }}" placeholder="Enter or generate key"><br>
+        
+        <label>Mode:</label>
+        <select name="mode">
+            <option value="encrypt" {% if mode == 'encrypt' %}selected{% endif %}>Encrypt</option>
+            <option value="decrypt" {% if mode == 'decrypt' %}selected{% endif %}>Decrypt</option>
+        </select><br>
+        
+        <button type="submit" name="action" value="process">Submit</button>
+        <button type="submit" name="generate">Generate Random Key</button>
+    </form>
+
+    {% if result %}
+        <h3>Result:</h3>
+        <textarea rows="4" readonly>{{ result }}</textarea>
+    {% endif %}
+</body>
+</html>
