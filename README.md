@@ -1,0 +1,2 @@
+# manoalphatic
+تشفير بطريقه manoalphatic
