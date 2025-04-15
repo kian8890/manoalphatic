@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>أدوات فحص الهوستات - الوضع الداكن</title>
+<title>أدوات فحص الهوستات - تصميم مريح</title>
 <!-- Bootstrap 5 RTL CSS -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet" />
 <style>
     body {
-        background: linear-gradient(135deg, #121212, #1e1e1e);
-        color: #e0e0e0;
+        background: #f8fafc; /* لون أوف وايت مائل للسمائي */
+        color: #1e293b; /* لون نص داكن مريح */
         min-height: 100vh;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         padding: 30px 15px;
@@ -20,71 +20,69 @@
         text-align: center;
         margin-bottom: 40px;
         user-select: none;
-        color: #a0c4ff;
-        text-shadow: 0 0 12px rgba(160, 196, 255, 0.7);
+        color: #0f172a; /* أزرق داكن */
+        text-shadow: 0 0 6px rgba(15, 23, 42, 0.2);
     }
     .card {
-        background: rgba(30, 30, 30, 0.7);
+        background: #ffffff;
         border-radius: 20px;
-        box-shadow: 0 8px 32px 0 rgba(100, 100, 255, 0.3);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
         padding: 30px;
-        max-width: 900px;
+        max-width: 1000px;
         margin: 0 auto 40px auto;
-        color: #e0e0e0;
+        color: #1e293b;
     }
     label {
         font-weight: 700;
         font-size: 1.2rem;
-        color: #a0c4ff;
+        color: #334155;
     }
     input[type="url"] {
         border-radius: 12px;
-        border: 1px solid #444;
+        border: 1px solid #cbd5e1;
         padding: 15px 20px;
         font-size: 1.1rem;
         width: 100%;
-        background: rgba(50, 50, 70, 0.6);
-        color: #e0e0e0;
-        box-shadow: inset 0 0 10px rgba(0,0,0,0.7);
+        background: #f1f5f9;
+        color: #1e293b;
+        box-shadow: inset 0 0 8px rgba(0,0,0,0.05);
         transition: background 0.3s ease, border-color 0.3s ease;
     }
     input[type="url"]:focus {
-        background: rgba(70, 70, 110, 0.8);
-        border-color: #a0c4ff;
+        background: #e0f2fe;
+        border-color: #3b82f6;
         outline: none;
-        box-shadow: 0 0 15px #a0c4ff;
-        color: #fff;
+        box-shadow: 0 0 10px #3b82f6;
+        color: #1e293b;
     }
     button {
-        background: linear-gradient(135deg, #6b8cff, #a0c4ff);
+        background: linear-gradient(135deg, #38bdf8, #0ea5e9);
         border: none;
         padding: 15px 30px;
         font-size: 1.2rem;
         font-weight: 700;
         border-radius: 15px;
-        color: #121212;
+        color: #ffffff;
         cursor: pointer;
-        box-shadow: 0 4px 20px rgba(160, 196, 255, 0.7);
+        box-shadow: 0 4px 20px rgba(14, 165, 233, 0.6);
         transition: background 0.3s ease, box-shadow 0.3s ease;
         user-select: none;
     }
     button:hover {
-        background: linear-gradient(135deg, #4a6fff, #7fb1ff);
-        box-shadow: 0 6px 25px rgba(127, 177, 255, 0.9);
+        background: linear-gradient(135deg, #0ea5e9, #0284c7);
+        box-shadow: 0 6px 25px rgba(2, 132, 199, 0.9);
     }
     .progress {
         height: 30px;
         border-radius: 15px;
-        background: rgba(50, 50, 70, 0.6);
-        box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+        background: #e2e8f0;
+        box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
         margin-top: 20px;
         overflow: hidden;
         position: relative;
     }
     .progress-bar {
-        background: linear-gradient(270deg, #6b8cff, #a0c4ff, #6b8cff);
+        background: linear-gradient(270deg, #38bdf8, #0ea5e9, #38bdf8);
         background-size: 600% 600%;
         animation: gradientAnimation 8s ease infinite;
         transition: width 0.4s ease;
@@ -93,9 +91,9 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #121212;
+        color: #ffffff;
         border-radius: 15px;
-        box-shadow: 0 0 10px rgba(160, 196, 255, 0.8);
+        box-shadow: 0 0 10px rgba(14, 165, 233, 0.8);
     }
     @keyframes gradientAnimation {
         0%{background-position:0% 50%}
@@ -103,94 +101,106 @@
         100%{background-position:0% 50%}
     }
     #hostsList {
-        max-height: 400px;
+        max-height: 500px; /* أكبر مساحة */
         overflow-y: auto;
         margin-top: 30px;
         border-radius: 15px;
-        background: rgba(30, 30, 30, 0.7);
-        box-shadow: inset 0 0 15px rgba(160, 196, 255, 0.3);
-        padding: 15px;
-        color: #e0e0e0;
+        background: #f1f5f9;
+        box-shadow: inset 0 0 15px rgba(14, 165, 233, 0.2);
+        padding: 20px;
+        color: #1e293b;
+        font-size: 1.1rem;
     }
     .host-item {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 12px 20px;
-        border-bottom: 1px solid rgba(160, 196, 255, 0.3);
-        font-size: 1.1rem;
+        padding: 14px 20px;
+        border-bottom: 1px solid rgba(14, 165, 233, 0.3);
         user-select: text;
     }
     .host-item:last-child {
         border-bottom: none;
     }
     .btn-small {
-        background: linear-gradient(135deg, #6b8cff, #a0c4ff);
+        background: linear-gradient(135deg, #0ea5e9, #0284c7);
         border: none;
         padding: 8px 18px;
         border-radius: 12px;
-        color: #121212;
+        color: #ffffff;
         font-weight: 700;
         cursor: pointer;
-        box-shadow: 0 4px 15px rgba(160, 196, 255, 0.7);
+        box-shadow: 0 4px 15px rgba(2, 132, 199, 0.6);
         transition: background 0.3s ease;
     }
     .btn-small:hover {
-        background: linear-gradient(135deg, #4a6fff, #7fb1ff);
-        box-shadow: 0 6px 25px rgba(127, 177, 255, 0.9);
+        background: linear-gradient(135deg, #0284c7, #0369a1);
+        box-shadow: 0 6px 20px rgba(3, 105, 161, 0.8);
     }
     /* Modal customizations */
+    .modal-dialog {
+        display: flex;
+        align-items: center; /* عموديًا في الوسط */
+        min-height: 100vh; /* لملء الشاشة عموديًا */
+    }
     .modal-content {
-        background: rgba(30, 30, 30, 0.6);
+        background: #f8fafc; /* أوف وايت مائل للسمائي */
         border-radius: 20px;
-        color: #e0e0e0;
+        color: #1e293b;
         border: none;
-        backdrop-filter: blur(15px);
-        -webkit-backdrop-filter: blur(15px);
-        box-shadow: 0 0 30px rgba(160, 196, 255, 0.5);
+        box-shadow: 0 8px 30px rgba(14, 165, 233, 0.3);
+        max-width: 700px;
+        margin: auto;
+        position: relative;
+        padding: 20px 30px;
+        transition: transform 0.3s ease, opacity 0.3s ease;
     }
     .modal-header {
         border-bottom: none;
         font-weight: 900;
         font-size: 1.8rem;
-        color: #a0c4ff;
+        color: #0ea5e9;
     }
     .btn-close {
-        filter: invert(1);
-        opacity: 0.7;
+        filter: none; /* إزالة الضبابية */
+        opacity: 0.8;
         transition: opacity 0.3s ease;
+        color: #0ea5e9;
+        font-weight: bold;
+        font-size: 1.5rem;
     }
     .btn-close:hover {
         opacity: 1;
+        color: #0284c7;
     }
     table {
         width: 100%;
         border-collapse: collapse;
         margin-top: 15px;
-        color: #e0e0e0;
+        color: #1e293b;
     }
     th, td {
         padding: 12px 15px;
-        border-bottom: 1px solid rgba(160, 196, 255, 0.3);
+        border-bottom: 1px solid rgba(14, 165, 233, 0.3);
         text-align: right;
     }
     th {
-        background: linear-gradient(135deg, #6b8cff, #a0c4ff);
+        background: linear-gradient(135deg, #0ea5e9, #38bdf8);
         font-weight: 700;
+        color: #fff;
     }
     .text-success {
-        color: #4ade80 !important;
+        color: #22c55e !important;
         font-weight: 700;
     }
     .text-danger {
-        color: #f87171 !important;
+        color: #ef4444 !important;
         font-weight: 700;
     }
 </style>
-
 </head>
 <body>
-    <h1>أدوات فحص الهوستات - الوضع الداكن</h1>
+    <h1>أدوات فحص الهوستات - تصميم مريح</h1>
 
     <div class="card">
         <form id="extractForm" class="d-flex gap-3 flex-column flex-md-row align-items-center">
@@ -208,7 +218,7 @@
     <!-- Modals -->
     <!-- Ports Modal -->
     <div class="modal fade" id="portsModal" tabindex="-1" aria-labelledby="portsModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="portsModalLabel">فحص المنافذ</h5>
@@ -226,7 +236,7 @@
 
     <!-- Response Modal -->
     <div class="modal fade" id="responseModal" tabindex="-1" aria-labelledby="responseModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="responseModalLabel">فحص الاستجابة</h5>
