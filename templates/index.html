@@ -101,7 +101,7 @@
         100%{background-position:0% 50%}
     }
     #hostsList {
-        max-height: 500px; /* أكبر مساحة */
+        max-height: 500px;
         overflow-y: auto;
         margin-top: 30px;
         border-radius: 15px;
@@ -140,11 +140,11 @@
     /* Modal customizations */
     .modal-dialog {
         display: flex;
-        align-items: center; /* عموديًا في الوسط */
-        min-height: 100vh; /* لملء الشاشة عموديًا */
+        align-items: center;
+        min-height: 100vh;
     }
     .modal-content {
-        background: #f8fafc; /* أوف وايت مائل للسمائي */
+        background: #f8fafc;
         border-radius: 20px;
         color: #1e293b;
         border: none;
@@ -162,7 +162,7 @@
         color: #0ea5e9;
     }
     .btn-close {
-        filter: none; /* إزالة الضبابية */
+        filter: none;
         opacity: 0.8;
         transition: opacity 0.3s ease;
         color: #0ea5e9;
@@ -275,6 +275,15 @@
             extractProgress.style.display = 'block';
             updateProgress(0);
 
+            // تحديث تدريجي لشريط التقدم
+            let progress = 0;
+            const interval = setInterval(() => {
+                if (progress < 90) {
+                    progress += 1;
+                    updateProgress(progress);
+                }
+            }, 100);
+
             try {
                 const response = await fetch('/api/extract_hosts', {
                     method: 'POST',
@@ -283,6 +292,7 @@
                 });
                 const data = await response.json();
 
+                clearInterval(interval);
                 updateProgress(100);
                 setTimeout(() => extractProgress.style.display = 'none', 500);
 
@@ -303,6 +313,7 @@
                     hostsList.appendChild(item);
                 });
             } catch (error) {
+                clearInterval(interval);
                 extractProgress.style.display = 'none';
                 hostsList.innerHTML = '<div class="alert alert-danger text-center">حدث خطأ أثناء الاستخراج.</div>';
             }
