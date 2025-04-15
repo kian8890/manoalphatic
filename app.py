@@ -33,6 +33,7 @@ def deep_crawl(url, max_depth=3):
                         parsed = urlparse(full_url)
                         if parsed.hostname:
                             hosts.add(parsed.hostname)
+                        # تابع الزحف فقط للروابط ضمن نفس النطاق
                         if parsed.netloc == base_domain and full_url not in visited:
                             crawl(full_url, depth + 1)
         except:
