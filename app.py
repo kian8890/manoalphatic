@@ -1,6 +1,8 @@
 from flask import Flask, render_template, request, jsonify
 import socket
 import requests
+import os
+import random
 import urllib3
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse, urljoin
