@@ -1,8 +1,7 @@
+import os
 from flask import Flask, render_template, request, jsonify
 import socket
 import requests
-import os
-import random
 import urllib3
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse, urljoin
@@ -106,5 +105,4 @@ def api_check_response():
     return jsonify({'success': success, 'headers': headers_dict})
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 10000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
