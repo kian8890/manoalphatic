@@ -10,7 +10,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 app = Flask(__name__)
 
-def deep_crawl(url, max_depth=3):
+def deep_crawl(url, max_depth=30):
     visited = set()
     hosts = set()
 
@@ -19,7 +19,7 @@ def deep_crawl(url, max_depth=3):
             return
         visited.add(current_url)
         try:
-            resp = requests.get(current_url, timeout=5, verify=False)
+            resp = requests.get(current_url, timeout=10, verify=False)
             resp.raise_for_status()
             soup = BeautifulSoup(resp.text, 'html.parser')
             parsed_base = urlparse(current_url)
@@ -33,16 +33,16 @@ def deep_crawl(url, max_depth=3):
                         parsed = urlparse(full_url)
                         if parsed.hostname:
                             hosts.add(parsed.hostname)
-                        # تابع الزحف فقط للروابط ضمن نفس النطاق
                         if parsed.netloc == base_domain and full_url not in visited:
                             crawl(full_url, depth + 1)
-        except:
+        except Exception as e:
+            # يمكن تسجيل الخطأ هنا إذا أردت
             pass
 
     crawl(url, 0)
     return sorted(hosts)
 
-def check_port(host, port, timeout=1):
+def check_port(host, port, timeout=2):
     try:
         sock = socket.socket()
         sock.settimeout(timeout)
@@ -54,14 +54,14 @@ def check_port(host, port, timeout=1):
 
 def check_http(host):
     try:
-        resp = requests.get(f"http://{host}", timeout=3)
+        resp = requests.get(f"http://{host}", timeout=5)
         return resp.status_code == 200, resp.headers
     except:
         return False, {}
 
 def check_https(host):
     try:
-        resp = requests.get(f"https://{host}", timeout=3, verify=False)
+        resp = requests.get(f"https://{host}", timeout=5, verify=False)
         return resp.status_code == 200, resp.headers
     except:
         return False, {}
@@ -76,7 +76,7 @@ def api_extract_hosts():
     url = data.get('url')
     if not url:
         return jsonify({'error': 'Missing URL'}), 400
-    hosts = deep_crawl(url, max_depth=3)
+    hosts = deep_crawl(url, max_depth=30)
     return jsonify({'hosts': hosts})
 
 @app.route('/api/check_port', methods=['POST'])
