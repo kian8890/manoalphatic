@@ -1,109 +1,110 @@
+from flask import Flask, render_template, request, redirect, url_for, flash
+from base64 import b64decode
+from Crypto.Hash import SHA1
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import unpad
 import os
-from flask import Flask, render_template, request, jsonify
-import socket
-import requests
-import urllib3
-from bs4 import BeautifulSoup
-from urllib.parse import urlparse, urljoin
-
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 app = Flask(__name__)
+app.secret_key = 'your_secret_key_here'  # لتفعيل الفلاش ميسجز
 
-def deep_crawl(url, max_depth=30):
-    visited = set()
-    hosts = set()
+# نفس المتغيرات والقوائم من سكربتك الأصلي
+valueMap = [
+    'payload', 'payloadProxyURL', 'shouldNotWorkWithRoot', 'lockPayloadAndServers', 'expiryDate', 'hasNotes',
+    'noteField2', 'sshAddress', 'onlyAllowOnMobileData', 'unlockRemoteProxy', 'unknown', 'vpnAddress',
+    'sslSni', 'shouldConnectUsingSSH', 'udpgwPort', 'lockPayload', 'hasHWID', 'hwid', 'noteField1',
+    'unlockUserAndPassword', 'sslAndPayloadMode', 'enablePassword', 'password'
+]
 
-    def crawl(current_url, depth):
-        if depth > max_depth or current_url in visited:
-            return
-        visited.add(current_url)
-        try:
-            resp = requests.get(current_url, timeout=10, verify=False)
-            resp.raise_for_status()
-            soup = BeautifulSoup(resp.text, 'html.parser')
-            parsed_base = urlparse(current_url)
-            base_domain = parsed_base.netloc
+xorList = ['。', '〃', '〄', '々', '〆', '〇', '〈', '〉', '《', '》', '「', '」', '『', '』', '【', '】', '〒', '〓', '〔', '〕']
 
-            for tag in soup.find_all(['a', 'link', 'script', 'img', 'iframe']):
-                for attr in ['href', 'src']:
-                    link = tag.get(attr)
-                    if link:
-                        full_url = urljoin(current_url, link)
-                        parsed = urlparse(full_url)
-                        if parsed.hostname:
-                            hosts.add(parsed.hostname)
-                        if parsed.netloc == base_domain and full_url not in visited:
-                            crawl(full_url, depth + 1)
-        except Exception as e:
-            # يمكن تسجيل الخطأ هنا إذا أردت
-            pass
-
-    crawl(url, 0)
-    return sorted(hosts)
-
-def check_port(host, port, timeout=2):
+def decrypt(contents, key):
+    decryption_key = SHA1.new(data=bytes(key, 'utf-8')).digest()[:16]
+    cipher = AES.new(decryption_key, AES.MODE_ECB)
+    decrypted = cipher.decrypt(contents)
     try:
-        sock = socket.socket()
-        sock.settimeout(timeout)
-        sock.connect((host, port))
-        sock.close()
-        return True
-    except:
-        return False
+        return unpad(decrypted, AES.block_size)
+    except ValueError:
+        # في حال لم يكن هناك padding
+        return decrypted
 
-def check_http(host):
-    try:
-        resp = requests.get(f"http://{host}", timeout=5)
-        return resp.status_code == 200, resp.headers
-    except:
-        return False, {}
+def deobfuscate(contents):
+    encrypted_string = contents.decode('utf-8')
+    deobfuscated_contents = b''
 
-def check_https(host):
-    try:
-        resp = requests.get(f"https://{host}", timeout=5, verify=False)
-        return resp.status_code == 200, resp.headers
-    except:
-        return False, {}
+    for index in range(len(encrypted_string)):
+        deobfuscated_contents += bytes([ord(encrypted_string[index]) ^ ord(xorList[index % len(xorList)])])
 
-@app.route('/')
+    return b64decode(deobfuscated_contents)
+
+def parse_key_entry(entry):
+    key_list = entry.strip().split(':', 1)
+    if len(key_list) != 2:
+        return None
+    return (bool(int(key_list[0])), key_list[1].strip())
+
+def load_keys(filepath='keylist.txt'):
+    if not os.path.exists(filepath):
+        return []
+    with open(filepath, 'r') as f:
+        lines = f.readlines()
+    keys = [parse_key_entry(line) for line in lines if parse_key_entry(line) is not None]
+    return keys
+
+@app.route('/', methods=['GET', 'POST'])
 def index():
-    return render_template('index.html')
+    decrypted_data = None
+    keys = load_keys()
+    if request.method == 'POST':
+        file = request.files.get('file')
+        key_input = request.form.get('key_input', '').strip()
+        use_raw = request.form.get('raw_output') == 'on'
 
-@app.route('/api/extract_hosts', methods=['POST'])
-def api_extract_hosts():
-    data = request.get_json()
-    url = data.get('url')
-    if not url:
-        return jsonify({'error': 'Missing URL'}), 400
-    hosts = deep_crawl(url, max_depth=30)
-    return jsonify({'hosts': hosts})
+        if not file:
+            flash('Please upload a file to decrypt.', 'danger')
+            return redirect(url_for('index'))
 
-@app.route('/api/check_port', methods=['POST'])
-def api_check_port():
-    data = request.get_json()
-    host = data.get('host')
-    port = data.get('port')
-    if not host or not port:
-        return jsonify({'error': 'Missing host or port'}), 400
-    is_open = check_port(host, port)
-    return jsonify({'open': is_open})
+        encrypted_contents = file.read()
 
-@app.route('/api/check_response', methods=['POST'])
-def api_check_response():
-    data = request.get_json()
-    host = data.get('host')
-    port = data.get('port')
-    if not host or not port:
-        return jsonify({'error': 'Missing host or port'}), 400
-    if port == 80:
-        success, headers = check_http(host)
-    elif port == 443:
-        success, headers = check_https(host)
-    else:
-        success, headers = False, {}
-    headers_dict = {k: v for k, v in headers.items()} if headers else {}
-    return jsonify({'success': success, 'headers': headers_dict})
+        # محاولة فك التشفير
+        try:
+            contents = deobfuscate(encrypted_contents)
+        except Exception:
+            contents = encrypted_contents
+
+        original_contents = None
+
+        if key_input:
+            # استخدام المفتاح الذي أدخله المستخدم
+            try:
+                decrypted_bytes = decrypt(contents, key_input)
+                original_contents = decrypted_bytes.decode('utf-8', errors='ignore')
+            except Exception:
+                flash('Wrong key or decryption failed.', 'danger')
+                return redirect(url_for('index'))
+        else:
+            # تجربة المفاتيح من keylist.txt
+            for key in keys:
+                try:
+                    decrypted_bytes = decrypt(contents, key[1])
+                    original_contents = decrypted_bytes.decode('utf-8', errors='ignore')
+                    if 'splitConfig' in original_contents:
+                        flash(f'Successfully decrypted with key: {key[1]}', 'success')
+                        break
+                except Exception:
+                    continue
+            else:
+                flash('Failed to decrypt with available keys.', 'danger')
+                return redirect(url_for('index'))
+
+        if not use_raw:
+            config = original_contents.split('[splitConfig]')
+            values = dict(zip(valueMap, config))
+            decrypted_data = values
+        else:
+            decrypted_data = original_contents
+
+    return render_template('index.html', decrypted_data=decrypted_data, keys=keys)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
+    app.run(debug=True)
